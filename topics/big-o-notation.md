@@ -396,9 +396,13 @@ Worst case is useful because it gives a safe upper bound.
 Use this process:
 
 1. Find what `n` means.
+
 2. Count how many times the main work runs.
+
 3. Look for loops, nested loops, recursion, and data structure operations.
+
 4. Keep the fastest-growing term.
+
 5. Remove constants.
 
 Example:
@@ -471,18 +475,29 @@ This detail matters in real systems and interviews.
 
 These are common average-case costs:
 
-| Operation | Common Complexity |
-| --- | --- |
-| Array access by index | `O(1)` |
-| Array search | `O(n)` |
-| Array insert at end | Usually `O(1)` amortized |
-| Array insert at beginning | `O(n)` |
-| Hash map lookup | Usually `O(1)` average |
-| Hash set lookup | Usually `O(1)` average |
-| Stack push/pop | `O(1)` |
-| Queue enqueue/dequeue | `O(1)` with proper implementation |
-| Binary search | `O(log n)` |
-| Sorting | Usually `O(n log n)` |
+## | Operation | Common Complexity |
+
+## | --- | --- |
+
+## | Array access by index | `O(1)` |
+
+## | Array search | `O(n)` |
+
+## | Array insert at end | Usually `O(1)` amortized |
+
+## | Array insert at beginning | `O(n)` |
+
+## | Hash map lookup | Usually `O(1)` average |
+
+## | Hash set lookup | Usually `O(1)` average |
+
+## | Stack push/pop | `O(1)` |
+
+## | Queue enqueue/dequeue | `O(1)` with proper implementation |
+
+## | Binary search | `O(log n)` |
+
+## | Sorting | Usually `O(n log n)` |
 
 These costs help you estimate full algorithm complexity.
 

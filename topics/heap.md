@@ -1,165 +1,45 @@
 # Heap
 
-A heap is a data structure that quickly gives access to the smallest or largest value.
+Heaps solve one recurring need extremely well: repeatedly grabbing the smallest (or largest) thing from a changing collection. Here they are in plain language.
 
-A min heap keeps the smallest value at the top.
+## The core idea of a heap
 
-A max heap keeps the largest value at the top.
+A heap is a structure that always keeps the most extreme item — either the minimum or the maximum, depending on the type — instantly accessible at the top, without bothering to fully sort everything else. Picture a tournament bracket where the champion sits at the top, and everyone below is only loosely ordered relative to their own branch. The rule is simply that every parent outranks its children (a min-heap has each parent smaller than its children; a max-heap, larger). Because it doesn't waste effort fully sorting, a heap can insert new items and remove the top item quickly. This is exactly what a priority queue needs — a line where the highest-priority item is always served next — which is why "heap" and "priority queue" are often used interchangeably.
 
-Heaps are commonly used to build priority queues.
+Binary Heap (heapify, insert, extract)
 
-## Heap Is Not Fully Sorted
+The standard heap, shaped as a binary tree (each node has up to two children) but cleverly stored in a plain array with no pointers needed, since the tree's shape is predictable. Its two core operations both work by "bubbling." To insert, you add the new item at the bottom and let it bubble upward, swapping with its parent as long as it outranks it, until it settles into place. To extract the top, you remove the root, move the last item up to fill the gap, then let it sink downward, swapping with its better child until order is restored — this sinking step is often called heapify. Both operations touch only one path from top to bottom, so they're fast. This is the heap you'll use most.
 
-This is important.
+Build-Heap (O(n))
 
-A heap does not keep every value sorted.
+This addresses turning a random pile of items into a valid heap all at once. The obvious way — inserting them one by one — works but is slower than necessary. Build-heap is a smarter method: it arranges all items in the array first, then fixes up the heap order by sinking elements into place starting from the bottom-most parents and working upward. The surprising and elegant result is that this bulk construction is faster than repeated insertion — it builds the whole heap in time proportional to the number of items, rather than something slower. It's a favorite example of how order of operations can change an algorithm's efficiency.
 
-It only guarantees that the top value is the min or max.
+Kth Largest / Smallest (heap-based)
 
-For a min heap:
+A common task: find the Kth biggest (or smallest) item without fully sorting. The heap trick is neat — to find the Kth largest, you maintain a small min-heap holding only the K biggest items seen so far. As you process each new item, if it's bigger than the smallest in your heap (the top), you swap it in and evict the smallest. After going through everything, the heap's top is the Kth largest. You only ever keep K items around, which is memory-efficient and fast, especially when the full dataset is huge or streaming in.
 
-Every parent is less than or equal to its children.
+## Merge K Sorted Lists
 
-That is enough to get the minimum quickly.
+You have several already-sorted lists and want to combine them into one sorted list. Doing it cleverly, you use a heap holding the current front element of each list. You repeatedly pull the smallest (the heap top), add it to your result, and then pull in the next element from whichever list that item came from. The heap always tells you which list currently offers the smallest next item, so you efficiently weave all the lists together in order. It's a classic heap application and appears in things like merging sorted data streams or database results.
 
-## Array Representation
+Median of a Stream (two heaps)
 
-Heaps are often stored in arrays.
+This solves a tricky problem: numbers arrive one at a time, and after each one you must report the current median (middle value) — but the data keeps growing, so you can't keep re-sorting. The elegant solution uses two heaps working together. A max-heap holds the smaller half of the numbers (with the largest of them on top), and a min-heap holds the larger half (with the smallest of them on top). By keeping the two halves balanced in size, the median is always sitting right at the top of one or both heaps — instantly available. Each new number is placed into the appropriate half and the halves are rebalanced. It's a beautiful example of combining two heaps to keep a running middle value.
 
-For index `i`:
+## Fibonacci Heap
 
-- Left child is `2 * i + 1`.
-- Right child is `2 * i + 2`.
-- Parent is `Math.floor((i - 1) / 2)`.
+A more advanced heap designed to make certain operations extremely fast in the long run. Its standout feature is that merging two heaps and decreasing an item's priority are remarkably cheap on average. This matters because algorithms like Dijkstra's shortest path repeatedly decrease priorities, and a Fibonacci heap can theoretically speed them up. The catch is that it achieves this through a complex, lazy internal structure that only tidies itself up when forced to — which makes it fast in theory but often slower in practice due to overhead. It's more celebrated for its theoretical elegance than for everyday use.
 
-This avoids storing explicit tree nodes.
+## Binomial Heap
 
-Example:
+Another heap built specifically to support merging two heaps efficiently, which a plain binary heap does poorly. It's structured as a collection of smaller heaps of specific sizes (tied to powers of two, analogous to how binary numbers add), so merging two binomial heaps works much like adding two binary numbers — combining pieces of matching sizes and carrying over. It's the stepping stone toward the Fibonacci heap and the go-to conceptual example when fast merging ("melding") of priority queues is the priority.
 
-```txt
-        2
-      /   \
-     5     8
-    / \
-   10  12
-```
+## Pairing Heap
 
-Array:
+A simpler alternative to the Fibonacci heap that achieves much of the same practical speed with far less complexity. It has a very loose structure — essentially a tree where merging is done by just comparing two roots and hanging one under the other, and cleanup happens by pairing up children when the top is removed. Despite its simplicity, it performs excellently in real-world use, often beating the fancier Fibonacci heap in practice. It's a nice reminder that a simpler design can outperform a theoretically superior but complicated one.
 
-```txt
-[2, 5, 8, 10, 12]
-```
+## D-ary Heap
 
-## Insert
+A generalization of the binary heap where each node has D children instead of just two (so a 4-ary heap gives each node four children). Widening the tree makes it shallower, which speeds up the "sink downward" operations that traverse from top to bottom — but each sink step now has more children to compare against. This creates a tunable trade-off: more children means faster inserts (shorter climb up) but slightly slower extractions (more comparisons per level). By tuning D to the ratio of inserts versus extractions in your workload, you can optimize performance for your specific situation.
 
-To insert into a min heap:
-
-1. Add the value at the end.
-2. Compare it with its parent.
-3. If it is smaller than the parent, swap.
-4. Keep moving up until the heap rule is fixed.
-
-This is called bubble up or sift up.
-
-Time complexity is `O(log n)` because the value may move up the height of the heap.
-
-## Remove Top
-
-To remove the minimum from a min heap:
-
-1. Save the root value.
-2. Move the last value to the root.
-3. Remove the last slot.
-4. Push the new root down until the heap rule is fixed.
-
-This is called bubble down or sift down.
-
-Time complexity is `O(log n)`.
-
-## Peek
-
-Peek means read the top without removing it.
-
-For a min heap, this gives the smallest value.
-
-For a max heap, this gives the largest value.
-
-Peek is `O(1)`.
-
-## Priority Queue
-
-A priority queue removes items by priority, not by arrival order.
-
-If smaller number means higher priority, use a min heap.
-
-If larger number means higher priority, use a max heap.
-
-Priority queues appear in:
-
-- Dijkstra’s algorithm.
-- Top K elements.
-- Merge K sorted lists.
-- Task scheduling.
-- Median from data stream.
-
-## Top K Pattern
-
-If you need the `k` largest values, a min heap of size `k` is useful.
-
-The heap stores the best `k` values seen so far.
-
-When a new value is larger than the heap minimum, remove the minimum and add the new value.
-
-This keeps only the top `k`.
-
-Time complexity is `O(n log k)`.
-
-This is better than sorting all values when `k` is small.
-
-## Dijkstra Connection
-
-Dijkstra uses a min heap to always process the node with the smallest known distance.
-
-Without a heap, repeatedly finding the smallest distance can be slow.
-
-The heap makes that selection efficient.
-
-## Complexity
-
-| Operation | Complexity |
-| --- | --- |
-| Peek | `O(1)` |
-| Insert | `O(log n)` |
-| Remove top | `O(log n)` |
-| Build heap from array | `O(n)` |
-
-## Common Mistakes
-
-The first mistake is thinking a heap is sorted.
-
-It is not.
-
-Only the top is guaranteed.
-
-The second mistake is using a heap when full sorted order is needed.
-
-The third mistake is forgetting whether you need a min heap or max heap.
-
-The fourth mistake is not limiting heap size in Top K problems.
-
-If you keep all values, you may lose the benefit.
-
-## Interview Explanation
-
-A strong explanation sounds like this:
-
-“I use a heap because I repeatedly need the smallest or largest item. Peek is O(1), and insert/remove are O(log n). For Top K, I keep a heap of size k, so each operation costs O(log k), giving total O(n log k).”
-
-This explains why the heap is the right tool.
-
-## Final Understanding
-
-A heap is for repeated priority access.
-
-If you keep asking “what is the smallest?” or “what is the largest?”, think about a heap.
-
+The themes to carry away. First, a heap's whole value proposition is partial order — by refusing to fully sort and only guaranteeing the top item, it makes "give me the extreme" and "add a new item" both fast, which is precisely what priority-driven tasks need. Second, notice how the application problems (Kth largest, merge K lists, median of stream) are all really the same move: keep a heap of just the relevant items so the answer is always sitting at the top. Third, the exotic heaps (Fibonacci, binomial, pairing) mostly exist to make merging and priority-decreasing fast — operations the basic binary heap handles poorly — and among them, the simplest (pairing) often wins in practice, a recurring lesson that theoretical superiority and real-world speed aren't the same thing.

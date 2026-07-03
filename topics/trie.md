@@ -185,4 +185,3 @@ A trie is a tree of characters.
 It is built for prefix-based thinking.
 
 If the problem asks about starts-with, autocomplete, or word paths, consider a trie.
-

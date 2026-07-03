@@ -197,4 +197,3 @@ A stack is simple.
 But the idea is powerful.
 
 Whenever the newest unresolved thing should be solved first, think about a stack.
-
